@@ -1,0 +1,71 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+		<!-- Main Content -->
+		<!-- Navigation -->
+		<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+		      <ul class="nav navbar-nav">
+		      	<a class="navbar-brand">QC</a>
+		        <li class="dropdown">
+		          	<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Menu<span class="caret"></span></a>
+		          	<ul class="dropdown-menu">
+			            <li><a href="{{url_for('showAllMovies')}}">All Movies</a></li>
+			            <li role="separator" class="divider"></li>
+			            <li><a href="{{url_for('newMovie')}}">Add New Movie</a></li>
+			            <li role="separator" class="divider"></li>
+			            <li><a href="{{url_for('getYourMovies')}}">Your Favorite</a></li>
+		          	</ul>
+		        </li>
+		      </ul>
+		      {% if 'username' not in session %}
+			    <a href="{{url_for('showLogin')}}" type="button" class="btn btn-default navbar-btn" role="button">Log in</a>
+			  {% else %}
+			    <p class="navbar-text navbar-right">Signed in as <a href="#" class="navbar-link">{{session.username}}</a></p>
+			    <a href="{{url_for('disconnect')}}" type="button" class="btn btn-default navbar-btn" role="button">Log out</a>
+			  {% endif %}
+		  	</div>
+		</div>
+		  		
+		<!-- flash -->
+		<div class='flash'>
+			{% with messages = get_flashed_messages() %}
+				{% if messages %}
+					<ul>
+						{% for message in messages %}
+							<li><strong>{{message}}</strong></li>
+						{% endfor %} 
+					</ul>
+				{% endif %}
+			{% endwith %}
+		</div>
+
+		<!-- Display Trailer Video -->
+		<div class="modal" id="trailer">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<a href="#" class="close-icon" data-dismiss="modal" aria-hidden="true">
+            			<img src="https://lh5.ggpht.com/v4-628SilF0HtHuHdu5EzxD7WRqOrrTIDi_MhEG6_qkNtUK5Wg7KPkofp_VJoF7RS2LhxwEFCO1ICHZlc-o_=s0#w=24&h=24">
+					</a>
+					<div class="scale-media" id="trailer-video-container">
+					</div>
+				</div>
+			</div>
+		</div>
+			<!-- Movies -->
+		{% if movies != [] %}
+		<div class="container">
+			{% for movie in movies %}
+				<div class="col-md-6 col-lg-4 movie-tile text-center" trailer="{{ movie.trailer }}" data-toggle="modal" data-target="#trailer">
+	    			<img src="{{ movie.poster }}" width="220" height="342">
+	    			<h3 style="font-family:arial">{{ movie.name }}</h3>
+	    			<ul class="action">
+		    			<li class='first'><a href="{{ url_for('editMovie', movie_id = movie.id) }}">Edit</a></li>
+		    			<li><a href="{{ url_for('deleteMovie', movie_id = movie.id)}}">Delete</a></li>
+		    			<li><a href="{{ movie.info }}">Learn More</a></li>
+	    			</ul>
+				</div>
+			{% endfor %}
+		</div>	
+		{% endif %}
+{% endblock %}

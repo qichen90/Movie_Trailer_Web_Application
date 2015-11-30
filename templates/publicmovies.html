@@ -1,0 +1,33 @@
+{% extends "main.html" %}
+{% block content %}
+{% include "header.html" %}
+
+		<!-- Display Trailer Video -->
+		<div class="modal" id="trailer">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<a href="#" class="close-icon" data-dismiss="modal" aria-hidden="true">
+            			<img src="https://lh5.ggpht.com/v4-628SilF0HtHuHdu5EzxD7WRqOrrTIDi_MhEG6_qkNtUK5Wg7KPkofp_VJoF7RS2LhxwEFCO1ICHZlc-o_=s0#w=24&h=24">
+					</a>
+					<div class="scale-media" id="trailer-video-container">
+					</div>
+				</div>
+			</div>
+		</div>
+			<!-- Movies -->
+		{% if movies != [] %}
+		<div class="container">
+			{% for movie in movies %}
+				<div class="col-md-6 col-lg-4 movie-tile text-center" trailer="{{ movie.trailer }}" data-toggle="modal" data-target="#trailer">
+	    			<img src="{{ movie.poster }}" width="220" height="342">
+	    			<h3 style="font-family:arial">{{ movie.name }}</h3>
+	    			<ul class="action">
+		    			<li class='first'><a href="{{ url_for('editMovie', movie_id = movie.id) }}">Edit</a></li>
+		    			<li><a href="{{ url_for('deleteMovie', movie_id = movie.id)}}">Delete</a></li>
+		    			<li><a href="{{ movie.info }}">Learn More</a></li>
+	    			</ul>
+				</div>
+			{% endfor %}
+		</div>	
+		{% endif %}
+{% endblock %}
