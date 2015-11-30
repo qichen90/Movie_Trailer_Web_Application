@@ -28,81 +28,81 @@ session = DBSession()
 
 # useful function for reformat youtube url
 def reformat(trailer):
-	# re-format the movies structure
-	youtube_id_match = re.search(r'(?<=v=)[^&#]+', trailer)
-	youtube_id_match = youtube_id_match or re.search(r'(?<=be/)[^&#]+', trailer)
-	trailer_youtube_id = (youtube_id_match.group(0) if youtube_id_match else None)
-	return trailer_youtube_id
+  # re-format the movies structure
+  youtube_id_match = re.search(r'(?<=v=)[^&#]+', trailer)
+  youtube_id_match = youtube_id_match or re.search(r'(?<=be/)[^&#]+', trailer)
+  trailer_youtube_id = (youtube_id_match.group(0) if youtube_id_match else None)
+  return trailer_youtube_id
 
-### ---------- Home page ---------- ### 
+### ---------- Basic Actions ---------- ### 
 @app.route('/')
 @app.route('/movies/')
 def showAllMovies():
-	movies = session.query(Movie).order_by(asc(Movie.name))
-	if 'username' not in login_session:
-		return render_template('publicmovies.html', movies=movies)
-	else:
-		return render_template('movies.html', movies=movies)
+  movies = session.query(Movie).order_by(asc(Movie.name))
+  if 'username' not in login_session:
+    return render_template('publicmovies.html', movies=movies)
+  else:
+    return render_template('movies.html', movies=movies)
 
 @app.route('/movies/new/', methods=['GET', 'POST'])
 def newMovie():
-	if request.method == 'POST':
-		if request.form != []:
-			newMovie = Movie(name=request.form['name'], poster=request.form['poster'], trailer=reformat(request.form['trailer']), 
-							 genre=request.form['genre'], info=request.form['info'])
-			session.add(newMovie)
-			session.commit()
-			flash("New Movie %s was successfully added!" % newMovie.name)
-		return redirect(url_for('showAllMovies'))
-	else:
-		return render_template('newmovie.html')
+  if request.method == 'POST':
+    if request.form != []:
+      newMovie = Movie(name=request.form['name'], poster=request.form['poster'], trailer=reformat(request.form['trailer']), 
+               genre=request.form['genre'], info=request.form['info'])
+      session.add(newMovie)
+      session.commit()
+      flash("New Movie %s was successfully added!" % newMovie.name)
+    return redirect(url_for('showAllMovies'))
+  else:
+    return render_template('newmovie.html')
 
 @app.route('/movies/<int:movie_id>/edit', methods=['GET', 'POST'])
 def editMovie(movie_id):
-	if 'username' not in login_session:
-		return redirect('/login')
+  if 'username' not in login_session:
+    return redirect('/login')
 
-	editedMovie = session.query(Movie).filter_by(id=movie_id).one()
-	
-	if editedMovie.user_id != login_session['user_id']:
-		return render_template('failoperate.html')
-	
-	if request.method == 'POST':
-		if request.form['name']:
-			editedMovie.name = request.form['name']
-		if request.form['trailer']:
-			editedMovie.trailer = reformat(request.form['trailer'])
-		if request.form['poster']:
-			editedMovie.poster = request.form['poster']
-		if request.form['genre']:
-			editedMovie.genre = request.form['genre']
-		if request.form['info']:
-			editedMovie.info = request.form['info']
-		
-		session.add(editedMovie)
-		session.commit()
-		flash('%s was successfully edited.' % editedMovie.name)
-		return redirect(url_for('showAllMovies'))
-	else:
-		return render_template('editmovie.html', movie=editedMovie)
+  editedMovie = session.query(Movie).filter_by(id=movie_id).one()
+  
+  if editedMovie.user_id != login_session['user_id']:
+    return render_template('failoperate.html')
+  
+  if request.method == 'POST':
+    if request.form['name']:
+      editedMovie.name = request.form['name']
+    if request.form['trailer']:
+      editedMovie.trailer = reformat(request.form['trailer'])
+    if request.form['poster']:
+      editedMovie.poster = request.form['poster']
+    if request.form['genre']:
+      editedMovie.genre = request.form['genre']
+    if request.form['info']:
+      editedMovie.info = request.form['info']
+    
+    session.add(editedMovie)
+    session.commit()
+    flash('%s was successfully edited.' % editedMovie.name)
+    return redirect(url_for('showAllMovies'))
+  else:
+    return render_template('editmovie.html', movie=editedMovie)
 
 @app.route('/movies/<int:movie_id>/delete/', methods=['GET', 'POST'])
 def deleteMovie(movie_id):
-	if 'username' not in login_session:
-		return redirect('/login')
-	
-	deletedMovie = session.query(Movie).filter_by(id=movie_id).one()
+  if 'username' not in login_session:
+    return redirect('/login')
+  
+  deletedMovie = session.query(Movie).filter_by(id=movie_id).one()
 
-	if deletedMovie.user_id != login_session['user_id']:
-		return render_template('failoperate.html')
-	
-	if request.method == 'POST':
-		session.delete(deletedMovie)
-		flash('%s has been successfully deleted.' % deletedMovie.name)
-		session.commit()
-		return redirect(url_for('showAllMovies'))
-	else:
-		return render_template('deletemovie.html', movie=deletedMovie)
+  if deletedMovie.user_id != login_session['user_id']:
+    return render_template('failoperate.html')
+  
+  if request.method == 'POST':
+    session.delete(deletedMovie)
+    flash('%s has been successfully deleted.' % deletedMovie.name)
+    session.commit()
+    return redirect(url_for('showAllMovies'))
+  else:
+    return render_template('deletemovie.html', movie=deletedMovie)
 
 @app.route('/movies/yours')
 def getYourMovies():
@@ -113,11 +113,11 @@ def getYourMovies():
   movies = session.query(Movie).filter_by(user_id=userId).all()
   return render_template('yourmovies.html', movies=movies)
 
-
+### ---------- JSON ---------- ### 
 @app.route('/movies/JSON')
 def moviesJSON():
-	movies = session.query(Movie).all()
-	return jsonify(movies=[m.serialize for m in movies])
+  movies = session.query(Movie).all()
+  return jsonify(movies=[m.serialize for m in movies])
 
 ### ---------- Sign in Section ---------- ### 
 # Creat anti-forgery state token
@@ -326,6 +326,7 @@ def disconnect():
     # flash("You were not logged in.")
     return redirect(url_for('showAllMovies'))
 
+### ---------- Basic User Information ---------- ### 
 # User functions
 def createUser(login_session):
   newUser = User(name=login_session['username'], email=login_session['email'])
@@ -349,5 +350,3 @@ def getUserID(email):
 app.secret_key = 'super_secret_key'
 app.debug = True
 # app.run('', port = 5000)
-
-
